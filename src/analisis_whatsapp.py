@@ -1,3 +1,4 @@
+from collections import Counter, defaultdict
 from datetime import datetime
 import re
 import matplotlib.pyplot as plt
@@ -63,8 +64,14 @@ def calcula_usuarios(log: list[Mensaje]) -> list[str]:
     :return: Lista de usuarios
     :rtype: list[str]
     '''
-    pass
-
+    nombres = set()
+    for l in log:
+        nombres.add(l.usuario)
+    return sorted(nombres)
+    
+    #por comprension
+    #return sorted({l.usuario for l in log})
+    
 def cuenta_mensajes_por_usuario(log: list[Mensaje]) -> dict[str, int]:
     '''
     Devuelve un diccionario en el que las claves son los usuarios y los valores son el número de mensajes de cada usuario.
@@ -74,8 +81,12 @@ def cuenta_mensajes_por_usuario(log: list[Mensaje]) -> dict[str, int]:
     :return: Diccionario de número de mensajes por usuario
     :rtype: dict[str, int]
     '''
-    pass
-
+    return Counter(l.usuario for l in log)
+    #res = defaultdict(int)
+    #for l in log:
+    #   res[l.usuario] += 1
+    #return res
+    
 def muestra_numero_mensajes_por_usuario(log: list[Mensaje]) -> None:
     '''
     Muestra una gráfica de barras indicando el número de mensajes por cada usuario.
@@ -90,9 +101,15 @@ def muestra_numero_mensajes_por_usuario(log: list[Mensaje]) -> None:
     # respectivamente los usuarios que aparecen en log y el número de 
     # mensajes de cada uno de ellos. Se aconseja que la lista de usuarios
     # aparezca ordenada alfabéticamente
-    usuarios = None # TODO
-    num_mensajes = None # TODO
-
+    conteos = cuenta_mensajes_por_usuario(log)
+    usuarios = []
+    num_mensajes = []
+    
+    for usuario, conteo in sorted(conteos.items()):
+        usuarios.append(usuario)
+        num_mensajes.append(conteo)
+    
+    
     plt.barh(usuarios, num_mensajes)
     plt.show()
 
@@ -106,7 +123,15 @@ def cuenta_mensajes_por_meses(log: list[Mensaje]) -> dict[str, int]:
     :return: Diccionario de número de mensajes por mes/año
     :rtype: dict[str, int]
     '''
-    pass
+    return Counter(str(l.fecha.month) + "/" + str(l.fecha.year) for l in log)
+    #return Counter(l.fecha.strftime("%m/%Y") for l in log)  
+    # la f de strftime es de formatear
+    
+    # res = defaultdict(int)
+    # for l in log: 
+    #     clave = str(l.fecha.month) + "/" + str(l.fecha.year)
+    #     res[clave] += 1
+    # return res
 
 def cuenta_mensajes_por_dia_semana(log: list[Mensaje]) -> dict[str, int]:
     '''
@@ -135,8 +160,26 @@ def cuenta_mensajes_por_momento_del_dia(log: list[Mensaje]) -> dict[str, int]:
     :return: Diccionario de número de mensajes para cada momento del día
     :rtype: dict[str, int]
     '''
-    pass
-   
+    res = defaultdict(int)
+    for l in log:
+        if 7 <= l.fecha.hour <=13:
+            res["MAÑANA"] +=1
+        elif 14 <= l.fecha.hour <= 20:
+            res["TARDE"] += 1
+        else:
+            res["NOCHE"] += 1
+    return res
+
+    #return Counter(momento_dia(l.hora) for l in log)
+
+def momento_dia(hora: time) -> str:
+        if 7 <= l.fecha.hour <=13:
+            return "MAÑANA"
+        elif 14 <= l.fecha.hour <= 20:
+            return "TARDE"
+        else:
+            return"NOCHE"
+        
 def calcula_media_horas_entre_mensajes(log: list[Mensaje]) -> float:
     '''
     Devuelve la media de horas entre mensajes consecutivos en el tiempo.
@@ -150,8 +193,15 @@ def calcula_media_horas_entre_mensajes(log: list[Mensaje]) -> float:
     :return: Media de horas entre mensajes consecutivos
     :rtype: float
     '''
-    pass
-   
+    
+    diferencias = []
+    for l1, l2 in zip(log, log[1:]):
+        fecha_hora1 = datetime.combine(l1.fecha, l1.hora)
+        fecha_hora2 = datetime.combine(l2.fecha, l2.hora)
+        horas = (fecha_hora2- fecha_hora1).seconds/3600
+        diferencias.append(horas)
+    return sum(diferencias) / len(diferencias)
+        
 def genera_conteos_palabras_usuario_y_resto(log: list[Mensaje], usuario: str) -> tuple[dict[str, int], dict[str, int]]:
     '''
     Genera dos diccionarios, uno con el conteo de las palabras usadas por el usuario,
