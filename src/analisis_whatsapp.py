@@ -173,13 +173,13 @@ def cuenta_mensajes_por_momento_del_dia(log: list[Mensaje]) -> dict[str, int]:
     #return Counter(momento_dia(l.hora) for l in log)
 
 def momento_dia(hora: time) -> str:
-        if 7 <= l.fecha.hour <=13:
-            return "MAÑANA"
-        elif 14 <= l.fecha.hour <= 20:
-            return "TARDE"
-        else:
-            return"NOCHE"
-        
+            if 7 <= fecha.hour <=13:
+                return "MAÑANA"
+            elif 14 <= fecha.hour <= 20:
+                return "TARDE"
+            else:
+                return"NOCHE"
+            
 def calcula_media_horas_entre_mensajes(log: list[Mensaje]) -> float:
     '''
     Devuelve la media de horas entre mensajes consecutivos en el tiempo.
@@ -198,7 +198,7 @@ def calcula_media_horas_entre_mensajes(log: list[Mensaje]) -> float:
     for l1, l2 in zip(log, log[1:]):
         fecha_hora1 = datetime.combine(l1.fecha, l1.hora)
         fecha_hora2 = datetime.combine(l2.fecha, l2.hora)
-        horas = (fecha_hora2- fecha_hora1).seconds/3600
+        horas = (fecha_hora2- fecha_hora1).total_seconds()/3600
         diferencias.append(horas)
     return sum(diferencias) / len(diferencias)
         
